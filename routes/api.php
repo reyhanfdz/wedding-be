@@ -27,20 +27,25 @@ Route::group([], function() {
 Route::group([], function() {
     Route::group([
         'prefix' => 'attenders',
-        // 'middleware' => '',
+        'middleware' => 'check_token',
     ], function() {
         Route::get('/', [AttenderController::class, 'list'])->name('attender.list');
     });
     Route::group([
-        'prefix' => 'attender'
+        'prefix' => 'attender',
     ], function() {
         Route::post('/', [AttenderController::class, 'create'])->name('attender.create');
     });
     Route::group([
         'prefix' => 'attender',
-        // 'middleware' => '',
+        'middleware' => 'check_token',
     ], function() {
         Route::get('/{id}', [AttenderController::class, 'detail'])->name('attender.detail');
+    });
+    Route::group([
+        'prefix' => 'attender',
+        'middleware' => ['check_token', 'only_admin'],
+    ], function() {
         Route::get('/active/{id}', [AttenderController::class, 'activeStatus'])->name('attender.activeStatus');
         Route::get('/inactive/{id}', [AttenderController::class, 'inactiveStatus'])->name('attender.inactiveStatus');
         Route::put('/{id}', [AttenderController::class, 'edit'])->name('attender.edit');

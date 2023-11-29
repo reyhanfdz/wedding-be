@@ -1,4 +1,5 @@
 <?php
+use Carbon\Carbon;
 
 if (!function_exists('setMeta')) {
     function setMeta($status, $message = null) {
@@ -16,8 +17,11 @@ if (!function_exists('setMeta')) {
             case 400:
                 $result['message'] = $message ?? 'Bad request - Please double check the data you sent';
                 break;
+            case 401:
+                $result['message'] = $message ?? 'Unauthorized - This action need a token access';
+                break;
             case 403:
-                $result['message'] = $message ?? "You don't have autorized for this action";
+                $result['message'] = $message ?? "Forbidden - You don't have an autorized for this action";
                 break;
             case 404:
                 $result['message'] = $message ?? "Data not found";
@@ -56,6 +60,20 @@ if (!function_exists('encryptToken')) {
 
 if (!function_exists('decryptToken')) {
     function decryptToken($data) {
-        return json_decode(Crypt::decrypt($data));
+        try {
+            return json_decode(Crypt::decrypt($data));
+        } catch (\Throwable $th) {
+            return 'error';
+        }
+    }
+}
+
+if (!function_exists('isTokenExpired')) {
+    function isTokenExpired($valid_until) {
+        $result = false;
+        $user_valid_token = Carbon::parse($valid_until);
+        $now = Carbon::now();
+        if($user_valid_token < $now) $result = true;
+        return $result;
     }
 }
