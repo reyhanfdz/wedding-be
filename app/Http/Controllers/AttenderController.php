@@ -9,6 +9,32 @@ use App\Models\Attender;
 
 class AttenderController extends Controller
 {
+
+    function list(Request $request) {
+        try {
+            $current_page = isset($request->page) ? $request->page : 1;
+            $limit = isset($request->limit) ? $request->limit : 1;
+            $keyword = isset($request->keyword) ? $request->keyword : null;
+            $attendance = isset($request->attendance) && $request->attendance != 0 ? $request->attendance : null;
+            $status = isset($request->status) && $request->status != 0 ? $request->status : null;
+            $data = Attender::when($keyword, function($query, $keyword) {
+                $query->where(function($q) use ($keyword) {
+                    $q->where('name', 'like', '%'.$keyword.'%')->orWhere('email', 'like', '%'.$keyword.'%');
+                });
+            })->when($attendance, function($query, $attendance) {
+                $query->where('attendance', (int) $attendance);
+            })->when($status, function($query, $status) {
+                $query->where('status', (int) $status);
+            })
+            ->orderBy('updated_at', 'DESC')
+            ->paginate($perPage = $limit, $columns = ['*'], $pageName = 'page', $page = $current_page);
+
+            return setRes($data, 200);
+        } catch (\Exception $e) {
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
     function create(Request $request) {
         DB::beginTransaction();
         try {
