@@ -49,6 +49,7 @@ Route::group([], function() {
         'middleware' => 'check_token',
     ], function() {
         Route::get('/{id}', [AttenderController::class, 'detail'])->name('attender.detail');
+        Route::put('/attend', [AttenderController::class, 'attend'])->name('attender.attend');
     });
     Route::group([
         'prefix' => 'attender',

@@ -107,9 +107,10 @@ class AttenderController extends Controller
                 'status' => 1,
                 'comment' => $request->comment,
             ]);
-
+            $token = encryptToken($data);
+            $link = "https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=".$token;
             DB::commit();
-            return setRes(null, 201);
+            return setRes(['link_qr' => $link], 201);
         } catch (\Exception $e) {
             DB::rollback();
             return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
@@ -193,6 +194,55 @@ class AttenderController extends Controller
             $data->delete();
             DB::commit();
             return setRes(null, 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function attend(Request $request) {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'token' => ['required'],
+            ], [
+                'token.required' => 'Token is required',
+            ]);
+
+            if ($validator->fails()) {
+                DB::rollback();
+                $errors = ['error' => [], 'errors' => []];
+                if ($validator->errors()->has('token')) {
+                    $errors['error']['token'] = $validator->errors()->first('token');
+                    $errors['errors'][] = [
+                        'field' => 'Token',
+                        'message' => $validator->errors()->first('token'),
+                    ];
+                }
+                return setRes($errors, 400);
+            }
+
+            $result = decryptToken($request->token);
+            if($result === 'error') {
+                DB::rollback();
+                return setRes(null, 400, 'Invalid token QR');
+            }
+
+            $data = Attender::find($result->id);
+            if(!$data) {
+                DB::rollback();
+                return setRes(null, 400, 'Invalid token QR, does not match with any data');
+            }
+            if((int) $data->status_attend === 2) {
+                DB::rollback();
+                return setRes(null, 400, 'You have attend before, cannot attend with the same data');
+            }
+
+            $data->status_attend = 2;
+            $data->save();
+            DB::commit();
+            unset($data['status_attend']);
+            return setRes($data, 201);
         } catch (\Exception $e) {
             DB::rollback();
             return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);

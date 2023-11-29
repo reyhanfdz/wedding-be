@@ -15,6 +15,7 @@ class Attender extends Model
         'participants',
         'attendance',
         'status',
+        'status_attend',
         'comment',
     ];
 }
