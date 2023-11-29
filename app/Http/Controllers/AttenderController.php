@@ -117,4 +117,23 @@ class AttenderController extends Controller
             return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
         }
     }
+
+    function delete($id) {
+        DB::beginTransaction();
+        try {
+            $data = Attender::find($id);
+
+            if(!$data) {
+                DB::rollback();
+                return setRes(null, 404);
+            }
+
+            $data->delete();
+            DB::commit();
+            return setRes(null, 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
 }
