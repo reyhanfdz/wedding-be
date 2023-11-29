@@ -56,7 +56,6 @@ Route::group([], function() {
     ], function() {
         Route::get('/active/{id}', [AttenderController::class, 'activeStatus'])->name('attender.activeStatus');
         Route::get('/inactive/{id}', [AttenderController::class, 'inactiveStatus'])->name('attender.inactiveStatus');
-        Route::put('/{id}', [AttenderController::class, 'edit'])->name('attender.edit');
         Route::delete('/{id}', [AttenderController::class, 'delete'])->name('attender.delete');
     });
 });

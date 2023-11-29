@@ -16,8 +16,8 @@ class AuthController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
-                'email' => 'required',
-                'password' => 'required',
+                'email' => ['required'],
+                'password' => ['required'],
             ], [
                 'email.required' => 'Email is required',
                 'password.required' => 'Password is required',
@@ -25,9 +25,21 @@ class AuthController extends Controller
 
             if ($validator->fails()) {
                 DB::rollback();
-                $errors = ['errors' => []];
-                if ($validator->errors()->has('email')) $errors['errors']['email'] = $validator->errors()->first('email');
-                if ($validator->errors()->has('password')) $errors['errors']['password'] = $validator->errors()->first('password');
+                $errors = ['error' => [], 'errors' => []];
+                if ($validator->errors()->has('email')) {
+                    $errors['error']['email'] = $validator->errors()->first('email');
+                    $errors['errors'][] = [
+                        'field' => 'Email',
+                        'message' => $validator->errors()->first('email'),
+                    ];
+                }
+                if ($validator->errors()->has('password')) {
+                    $errors['error']['password'] = $validator->errors()->first('password');
+                    $errors['errors'][] = [
+                        'field' => 'Password',
+                        'message' => $validator->errors()->first('password'),
+                    ];
+                }
                 return setRes($errors, 400);
             }
 

@@ -39,27 +39,63 @@ class AttenderController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'email' => 'required',
-                'participants' => 'required',
-                'attendance' => 'required',
-                'comment' => 'required',
+                'name' => ['required', 'max:50', 'regex:/^[A-Za-z\s]*$/'],
+                'email' => ['required', 'unique:attenders', 'max:50', 'regex:/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/'],
+                'participants' => ['required'],
+                'attendance' => ['required'],
+                'comment' => ['required', 'max:230'],
             ], [
                 'name.required' => 'Name is required',
+                'name.max' => 'Name max 50 character',
+                'name.regex' => 'Name format is invalid (only alphabet and space)',
                 'email.required' => 'Email is required',
+                'email.unique' => 'Email filled, please try another email',
+                'email.max' => 'Email max 50 character',
+                'email.regex' => 'Email format is invalid',
                 'participants.required' => 'Participants is required',
                 'attendance.required' => 'Attendance is required',
                 'comment.required' => 'Comment is required',
+                'comment.max' => 'Comment max 230 character',
             ]);
 
             if ($validator->fails()) {
                 DB::rollback();
-                $errors = ['errors' => []];
-                if ($validator->errors()->has('name')) $errors['errors']['name'] = $validator->errors()->first('name');
-                if ($validator->errors()->has('email')) $errors['errors']['email'] = $validator->errors()->first('email');
-                if ($validator->errors()->has('participants')) $errors['errors']['participants'] = $validator->errors()->first('participants');
-                if ($validator->errors()->has('attendance')) $errors['errors']['attendance'] = $validator->errors()->first('attendance');
-                if ($validator->errors()->has('comment')) $errors['errors']['comment'] = $validator->errors()->first('comment');
+                $errors = ['error' => [], 'errors' => []];
+                if ($validator->errors()->has('name')) {
+                    $errors['error']['name'] = $validator->errors()->first('name');
+                    $errors['errors'][] = [
+                        'field' => 'Name',
+                        'message' => $validator->errors()->first('name'),
+                    ];
+                }
+                if ($validator->errors()->has('email')) {
+                    $errors['error']['email'] = $validator->errors()->first('email');
+                    $errors['errors'][] = [
+                        'field' => 'Email',
+                        'message' => $validator->errors()->first('email'),
+                    ];
+                }
+                if ($validator->errors()->has('participants')) {
+                    $errors['error']['participants'] = $validator->errors()->first('participants');
+                    $errors['errors'][] = [
+                        'field' => 'Participants',
+                        'message' => $validator->errors()->first('participants'),
+                    ];
+                }
+                if ($validator->errors()->has('attendance')) {
+                    $errors['error']['attendance'] = $validator->errors()->first('attendance');
+                    $errors['errors'][] = [
+                        'field' => 'Attendance',
+                        'message' => $validator->errors()->first('attendance'),
+                    ];
+                }
+                if ($validator->errors()->has('comment')) {
+                    $errors['error']['comment'] = $validator->errors()->first('comment');
+                    $errors['errors'][] = [
+                        'field' => 'Comment',
+                        'message' => $validator->errors()->first('comment'),
+                    ];
+                }
                 return setRes($errors, 400);
             }
 
