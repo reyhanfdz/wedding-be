@@ -13,11 +13,15 @@ class DashboardController extends Controller
             $total_will_attend = (int) Attender::where('attendance', 1)->count();
             $total_will_not_attend = (int) Attender::where('attendance', 2)->count();
             $total_post_comments = (int) Attender::where('status', 2)->count();
+            $total_attender_scan = (int) Attender::where('status_attend', 2)->count();
+            $total_attender_not_scan = (int) Attender::where('status_attend', 1)->count();
             $data = [
                 'total_participants' => $total_participants == 1 || $total_participants == 0 ? $total_participants : $total_participants - 1,
                 'total_will_attend' => $total_will_attend,
                 'total_will_not_attend' => $total_will_not_attend,
                 'total_post_comments' => $total_post_comments,
+                'total_attender_scan' => $total_attender_scan,
+                'total_attender_not_scan' => $total_attender_not_scan,
             ];
 
             return setRes($data, 200);

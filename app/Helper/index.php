@@ -9,10 +9,10 @@ if (!function_exists('setMeta')) {
         ];
         switch($status) {
             case 200:
-                $result['message'] = $message ?? 'Success';
+                $result['message'] = $message ?? 'Ok';
                 break;
             case 201:
-                $result['message'] = $message ?? 'Success send data';
+                $result['message'] = $message ?? 'Created';
                 break;
             case 400:
                 $result['message'] = $message ?? 'Bad request - Please double check the data you sent';
@@ -42,6 +42,7 @@ if (!function_exists('setRes')) {
         $resultMessage = setMeta($status, $message);
         $response = [
             'meta' => [
+                'is_success' => $status >= 200 && $status <= 299 ? true : false,
                 'status' => $resultMessage['status'],
                 'message' => $resultMessage['message'],
             ],
@@ -62,7 +63,7 @@ if (!function_exists('decryptToken')) {
     function decryptToken($data) {
         try {
             return json_decode(Crypt::decrypt($data));
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return 'error';
         }
     }

@@ -45,34 +45,36 @@ class AuthController extends Controller
 
             $data = User::with(['profile'])->where('email', $request->email)->first();
 
-            if ($data) {
-                if ($data->status === 1) {
-                    DB::rollback();
-                    return setRes(null, 403, 'Your account is not active');
-                }
-
-                if (Hash::check($request->password, $data->password)) {
-                    $date = Carbon::now();
-                    $date->addDays(5);
-                    $data['expired_until'] = $date;
-                    $token = encryptToken($data);
-                    $decrypt = decryptToken($token);
-                    $data['access_token'] = $token;
-                    unset($data['status']);
-                    unset($data['expired_until']);
-                    unset($data['profile']['user_id']);
-
-                    $update_user = User::find($data->id);
-                    $update_user->token = $token;
-                    $update_user->save();
-
-                    DB::commit();
-                    return setRes($data, 200);
-                }
+            if (!$data) {
+                DB::rollback();
+                return setRes(null, 400, 'Email or Password does not match');
             }
 
-            DB::rollback();
-            return setRes(null, 403, 'Email or Password does not match');
+            if ($data->status === 1) {
+                DB::rollback();
+                return setRes(null, 400, 'Your account is not active yet');
+            }
+
+            if (!Hash::check($request->password, $data->password)) {
+                DB::rollback();
+                return setRes(null, 400, 'Email or Password does not match');
+            }
+
+            $date = Carbon::now();
+            $date->addDays(5);
+            $data['expired_until'] = $date;
+            $token = encryptToken($data);
+            $data['access_token'] = $token;
+            unset($data['status']);
+            unset($data['expired_until']);
+            unset($data['profile']['user_id']);
+
+            $update_user = User::find($data->id);
+            $update_user->token = $token;
+            $update_user->save();
+
+            DB::commit();
+            return setRes($data, 200);
         } catch (\Exception $e) {
             DB::rollback();
             return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);

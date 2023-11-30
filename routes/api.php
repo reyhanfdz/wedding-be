@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttenderController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,4 +61,16 @@ Route::group([], function() {
         Route::get('/inactive/{id}', [AttenderController::class, 'inactiveStatus'])->name('attender.inactiveStatus');
         Route::delete('/{id}', [AttenderController::class, 'delete'])->name('attender.delete');
     });
+});
+
+Route::group([
+    'prefix' => 'setting',
+], function() {
+    Route::group([
+        'middleware' => ['check_token', 'only_admin'],
+    ], function() {
+        Route::post('/', [SettingController::class, 'save'])->name('setting.list');
+        Route::get('/detail', [SettingController::class, 'get'])->name('setting.list');
+    });
+    Route::get('/', [SettingController::class, 'get'])->name('setting.list');
 });
