@@ -9,7 +9,6 @@ use App\Models\Attender;
 
 class AttenderController extends Controller
 {
-
     function list(Request $request) {
         try {
             $current_page = isset($request->page) ? $request->page : 1;
@@ -17,6 +16,7 @@ class AttenderController extends Controller
             $keyword = isset($request->keyword) ? $request->keyword : null;
             $attendance = isset($request->attendance) && $request->attendance != 0 ? $request->attendance : null;
             $status = isset($request->status) && $request->status != 0 ? $request->status : null;
+            $status_attend = isset($request->status_attend) && $request->status_attend != 0 ? $request->status_attend : null;
             $data = Attender::when($keyword, function($query, $keyword) {
                 $query->where(function($q) use ($keyword) {
                     $q->where('name', 'like', '%'.$keyword.'%')->orWhere('email', 'like', '%'.$keyword.'%');
@@ -25,6 +25,8 @@ class AttenderController extends Controller
                 $query->where('attendance', (int) $attendance);
             })->when($status, function($query, $status) {
                 $query->where('status', (int) $status);
+            })->when($status_attend, function($query, $status_attend) {
+                $query->where('status_attend', (int) $status_attend);
             })
             ->orderBy('updated_at', 'DESC')
             ->paginate($perPage = $limit, $columns = ['*'], $pageName = 'page', $page = $current_page);
@@ -245,6 +247,16 @@ class AttenderController extends Controller
             return setRes($data, 201);
         } catch (\Exception $e) {
             DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function getDisplayedComment() {
+        try {
+            $data = Attender::where('status', 2)->orderBy('created_at', 'ASC')->get();
+
+            return setRes($data, 200);
+        } catch (\Exception $e) {
             return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
         }
     }

@@ -43,6 +43,7 @@ Route::group([], function() {
         'prefix' => 'attender',
     ], function() {
         Route::post('/', [AttenderController::class, 'create'])->name('attender.create');
+        Route::get('/displayed-comments', [AttenderController::class, 'getDisplayedComment'])->name('attender.getDisplayedComment');
     });
     Route::group([
         'prefix' => 'attender',
