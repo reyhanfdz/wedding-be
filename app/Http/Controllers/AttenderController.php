@@ -117,7 +117,7 @@ class AttenderController extends Controller
 
             $data_email = [
                 'subject' => 'Ade & Nova | Generate QR Code',
-                'to' => 'm.rhuzmana@gmail.com', //$data->email
+                'to' => $data->email,
                 'view' => 'emails.qr',
             ];
             $param_email = ['link_qr' => $link];
@@ -295,7 +295,7 @@ class AttenderController extends Controller
 
             $data_email = [
                 'subject' => 'Ade & Nova | Regenerate QR Code',
-                'to' => 'm.rhuzmana@gmail.com', //$data->email
+                'to' => $data->email,
                 'view' => 'emails.refresh-qr',
             ];
             $param_email = ['link_qr' => $link];
