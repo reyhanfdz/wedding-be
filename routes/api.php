@@ -58,6 +58,7 @@ Route::group([], function() {
         'middleware' => ['check_token', 'only_admin'],
     ], function() {
         Route::get('/active/{id}', [AttenderController::class, 'activeStatus'])->name('attender.activeStatus');
+        Route::get('/regenerate-qr/{id}', [AttenderController::class, 'generateNewQr'])->name('attender.generateNewQr');
         Route::get('/inactive/{id}', [AttenderController::class, 'inactiveStatus'])->name('attender.inactiveStatus');
         Route::delete('/{id}', [AttenderController::class, 'delete'])->name('attender.delete');
     });

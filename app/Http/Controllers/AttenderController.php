@@ -109,8 +109,20 @@ class AttenderController extends Controller
                 'status' => 1,
                 'comment' => $request->comment,
             ]);
+            unset($data['link_qr']);
             $token = encryptToken($data);
             $link = "https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=".$token;
+            $data->link_qr = $token;
+            $data->save();
+
+            $data_email = [
+                'subject' => 'Ade & Nova | Generate QR Code',
+                'to' => 'm.rhuzmana@gmail.com', //$data->email
+                'view' => 'emails.qr',
+            ];
+            $param_email = ['link_qr' => $link];
+            sendEmail($data_email, $param_email);
+
             DB::commit();
             return setRes(['link_qr' => $link], 201);
         } catch (\Exception $e) {
@@ -235,6 +247,10 @@ class AttenderController extends Controller
                 DB::rollback();
                 return setRes(null, 400, 'Invalid token QR, does not match with any data');
             }
+            if($data->link_qr !== $request->token) {
+                DB::rollback();
+                return setRes(null, 400, 'Invalid token QR, You may has request regenarate new QR before');
+            }
             if((int) $data->status_attend === 2) {
                 DB::rollback();
                 return setRes(null, 400, 'You have attend before, cannot attend with the same data');
@@ -257,6 +273,38 @@ class AttenderController extends Controller
 
             return setRes($data, 200);
         } catch (\Exception $e) {
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function generateNewQr($id) {
+        DB::beginTransaction();
+        try {
+            $data = Attender::find($id);
+            if(!$data) {
+                DB::rollback();
+                return setRes(null, 400);
+            }
+
+            $data->link_qr = null;
+            unset($data['link_qr']);
+            $token = encryptToken($data);
+            $link = "https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=".$token;
+            $data->link_qr = $token;
+            $data->save();
+
+            $data_email = [
+                'subject' => 'Ade & Nova | Regenerate QR Code',
+                'to' => 'm.rhuzmana@gmail.com', //$data->email
+                'view' => 'emails.refresh-qr',
+            ];
+            $param_email = ['link_qr' => $link];
+            sendEmail($data_email, $param_email);
+
+            DB::commit();
+            return setRes(null, 200);
+        } catch (\Exception $e) {
+            DB::rollback();
             return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
         }
     }

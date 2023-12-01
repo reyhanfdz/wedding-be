@@ -1,5 +1,7 @@
 <?php
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\MailNotification;
 
 if (!function_exists('setMeta')) {
     function setMeta($status, $message = null) {
@@ -76,5 +78,18 @@ if (!function_exists('isTokenExpired')) {
         $now = Carbon::now();
         if($user_valid_token < $now) $result = true;
         return $result;
+    }
+}
+
+if (!function_exists('sendEmail')) {
+    function sendEmail($data, $params) {
+        $notification_params = [
+            'subject' => $data['subject'],
+            'to' => $data['to'],
+            'view' => $data['view'],
+            'params' => $params
+        ];
+        $notification_params['params']['subject'] = $data['subject'];
+        Mail::send(new MailNotification($notification_params));
     }
 }
