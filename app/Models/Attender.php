@@ -17,5 +17,6 @@ class Attender extends Model
         'status',
         'status_attend',
         'comment',
+        'link_qr',
     ];
 }

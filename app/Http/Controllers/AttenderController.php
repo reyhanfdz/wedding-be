@@ -257,6 +257,7 @@ class AttenderController extends Controller
             }
 
             $data->status_attend = 2;
+            $data->link_qr = null;
             $data->save();
             DB::commit();
             unset($data['status_attend']);
