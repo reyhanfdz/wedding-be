@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Attender;
+use App\Models\BlockDomain;
 
 class AttenderController extends Controller
 {
-
     function list(Request $request) {
         try {
             $current_page = isset($request->page) ? $request->page : 1;
@@ -17,6 +17,7 @@ class AttenderController extends Controller
             $keyword = isset($request->keyword) ? $request->keyword : null;
             $attendance = isset($request->attendance) && $request->attendance != 0 ? $request->attendance : null;
             $status = isset($request->status) && $request->status != 0 ? $request->status : null;
+            $status_attend = isset($request->status_attend) && $request->status_attend != 0 ? $request->status_attend : null;
             $data = Attender::when($keyword, function($query, $keyword) {
                 $query->where(function($q) use ($keyword) {
                     $q->where('name', 'like', '%'.$keyword.'%')->orWhere('email', 'like', '%'.$keyword.'%');
@@ -25,6 +26,8 @@ class AttenderController extends Controller
                 $query->where('attendance', (int) $attendance);
             })->when($status, function($query, $status) {
                 $query->where('status', (int) $status);
+            })->when($status_attend, function($query, $status_attend) {
+                $query->where('status_attend', (int) $status_attend);
             })
             ->orderBy('updated_at', 'DESC')
             ->paginate($perPage = $limit, $columns = ['*'], $pageName = 'page', $page = $current_page);
@@ -99,6 +102,28 @@ class AttenderController extends Controller
                 return setRes($errors, 400);
             }
 
+            $mode = env("APP_ENV");
+            if ($mode === 'production') {
+                $email_domain = explode('@',$request->email);
+                $email_domain = explode('.',end($email_domain));
+                $email_domain = $email_domain[0];
+                $block_domain = BlockDomain::where('name', 'like','%'.$email_domain.'%')->first();
+                if($block_domain) {
+                    $result = [
+                        "error" => [
+                            "email" => "Email domain (".$email_domain.") is not allowed, try another email"
+                        ],
+                        "errors" => [
+                            [
+                                "field" => "Email",
+                                "message" => "Email domain (".$email_domain.") is not allowed, try another email"
+                            ]
+                        ]
+                    ];
+                    return setRes($result, 400);
+                }
+            }
+
             $data = Attender::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -107,9 +132,22 @@ class AttenderController extends Controller
                 'status' => 1,
                 'comment' => $request->comment,
             ]);
+            unset($data['link_qr']);
+            $token = encryptToken($data);
+            $link = "https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=".$token;
+            $data->link_qr = $token;
+            $data->save();
+
+            $data_email = [
+                'subject' => 'Ade & Nova | Generate QR Code',
+                'to' => $data->email,
+                'view' => 'emails.qr',
+            ];
+            $param_email = ['link_qr' => $link];
+            sendEmail($data_email, $param_email);
 
             DB::commit();
-            return setRes(null, 201);
+            return setRes(['link_qr' => $link], 201);
         } catch (\Exception $e) {
             DB::rollback();
             return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
@@ -191,6 +229,102 @@ class AttenderController extends Controller
             }
 
             $data->delete();
+            DB::commit();
+            return setRes(null, 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function attend(Request $request) {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'token' => ['required'],
+            ], [
+                'token.required' => 'Token is required',
+            ]);
+
+            if ($validator->fails()) {
+                DB::rollback();
+                $errors = ['error' => [], 'errors' => []];
+                if ($validator->errors()->has('token')) {
+                    $errors['error']['token'] = $validator->errors()->first('token');
+                    $errors['errors'][] = [
+                        'field' => 'Token',
+                        'message' => $validator->errors()->first('token'),
+                    ];
+                }
+                return setRes($errors, 400);
+            }
+
+            $result = decryptToken($request->token);
+            if($result === 'error') {
+                DB::rollback();
+                return setRes(null, 400, 'Invalid token QR');
+            }
+
+            $data = Attender::find($result->id);
+            if(!$data) {
+                DB::rollback();
+                return setRes(null, 400, 'Invalid token QR, does not match with any data');
+            }
+            if($data->link_qr !== $request->token) {
+                DB::rollback();
+                return setRes(null, 400, 'Invalid token QR, You may has request regenarate new QR before');
+            }
+            if((int) $data->status_attend === 2) {
+                DB::rollback();
+                return setRes(null, 400, 'You have attend before, cannot attend with the same data');
+            }
+
+            $data->status_attend = 2;
+            $data->link_qr = null;
+            $data->save();
+            DB::commit();
+            unset($data['status_attend']);
+            return setRes($data, 201);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function getDisplayedComment() {
+        try {
+            $data = Attender::where('status', 2)->orderBy('created_at', 'ASC')->get();
+
+            return setRes($data, 200);
+        } catch (\Exception $e) {
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function generateNewQr($id) {
+        DB::beginTransaction();
+        try {
+            $data = Attender::find($id);
+            if(!$data) {
+                DB::rollback();
+                return setRes(null, 400);
+            }
+
+            $data->link_qr = null;
+            unset($data['link_qr']);
+            $token = encryptToken($data);
+            $link = "https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=".$token;
+            $data->link_qr = $token;
+            $data->save();
+
+            $data_email = [
+                'subject' => 'Ade & Nova | Regenerate QR Code',
+                'to' => $data->email,
+                'view' => 'emails.refresh-qr',
+            ];
+            $param_email = ['link_qr' => $link];
+            sendEmail($data_email, $param_email);
+
             DB::commit();
             return setRes(null, 200);
         } catch (\Exception $e) {

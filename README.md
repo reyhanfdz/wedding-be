@@ -1,64 +1,73 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+## SAVE-ME-API
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is the API for weeding management content
 
-## About Laravel
+## Setup
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Setup Composer
+    - **[see doc here](https://getcomposer.org/doc)**
+2. Setup Laravel (v8x)
+    - **[see doc here](https://laravel.com/docs/8.x)**
+3. Setup PHP (v7.3 or v8.0)
+    - **[see doc here](https://www.php.net/docs.php)**
+4. Setup Database (for newbie recomended setup MySql for Database)
+    - **[see doc MySql here](https://dev.mysql.com/doc)**
+5. Setup GIT
+    - **[see doc here](https://docs.github.com/en/get-started/quickstart/set-up-git)**
+6. Clone Project
+    - Clone via SSH / Https
+        - SSH Run Command: git clone git@github.com:your-gitlab-username/your-project-name.git
+        - https Run Command: git clone https://github.com/your-gitlab-username/your-project-name.git
+7. create file .env on dir project (copy from .env.example)
+    - What variables need to be edited?
+        - APP_NAME=YourNameApp
+        - APP_ENV=yourEnviroment (sample: local, development, staging, production)
+        - APP_DEBUG=true (for enviroment production it should be false)
+        - APP_URL=yourUrlApps (default http://localhost:8000)
+        - DB_CONNECTION=mysql (Your database connection)
+        - DB_HOST=127.0.0.1 (Your Database url / ip)
+        - DB_PORT=3306 (Your Database port)
+        - DB_DATABASE=sampleDatabase (your DB password)
+        - DB_USERNAME=sampleUsernameDatabase (Your Database username)
+        - DB_PASSWORD=samplePasswordDatabase (Your Database password)
+        - MAIL_MAILER (need setup SMTP account first)
+        - MAIL_HOST= (need setup SMTP account first)
+        - MAIL_PORT= (need setup SMTP account first)
+        - MAIL_USERNAME= (need setup SMTP account first)
+        - MAIL_PASSWORD= (need setup SMTP account first)
+        - MAIL_ENCRYPTION= (need setup SMTP account first)
+        - MAIL_FROM_ADDRESS= (need setup SMTP account first)
+        - MAIL_FROM_NAME= (need setup SMTP account first)
+        - EMAIL_ADMIN="yourEmail@gmail.com" (Your email for login app as Admin)
+        - PHONE_WHATSAPP="+628xxxxxx" (Your phone whatsapp)
+        - PHONE_ADMIN="+628xxxxxx" (Your phone number)
+        - NAME_ADMIN="yourName as Admin"
+        - EMAIL_STAFF="yourEmail@gmail.com" (dont same with EMAIL_ADMIN)
+        - PHONE_STAFF="+628xxxxxx" (dont same with PHONE_ADMIN)
+        - NAME_STAFF="yourName as Staff"
+    - For MAIL (Mailer / SMTP) your need SMTP credentials, how to setup using gmail?
+        - go to **[here](https://myaccount.google.com/security)**
+        - 2nd Verification should be on / active (klik arrow right or option to open seeting 2nd Verification)
+        - Follow the instruction from google and make sure use active phone number for OTP
+        - After it activated, and you got to the setting 2nd Verification again, go to the bottom of page there is should be Application Password section
+        - Go there and Fill App name, the you will get password, copy and save (to note or anything) it for your SMTP Password
+        - After all of it, go to .env edit this variable:
+            - MAIL_MAILER=smtp (default smtp)
+            - MAIL_HOST=smtp.gmail.com (default smtp.gmail.com)
+            - MAIL_PORT=587 (default 587)
+            - MAIL_USERNAME="yourEmail@gmail.com" (Enter the email that has been set to 2nd verification)
+            - MAIL_PASSWORD="yourPassword" (Password that you were copied before while activating 2nd Verification)
+            - MAIL_ENCRYPTION=tls (default tls)
+            - MAIL_FROM_ADDRESS="yourEmail@gmail.com" (Enter the email that has been set to 2nd verification)
+            - MAIL_FROM_NAME="yourName" (Enter your name or app name, it will show as email from when the receiver get email from your app)
+8. Install Package
+    - run command: composer install
+9. Generate key laravel
+    - run command: php artisan key:generate
+10. Migate tables
+    - run command: php artisan migrate
+11. Seed default data to tables
+    - run command: php artisan db:seed
+12. Run App
+    - run command: php artisan server
+    - you can try it using postman, download postman collection v2.1 & env postmane **[here](https://drive.google.com/drive/folders/1XLSRGPoL7u6zKmRmCfTREoE5AkxBV6bc?usp=drive_link)** (need request)
