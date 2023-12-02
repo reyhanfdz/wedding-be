@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Attender;
+use App\Models\BlockDomain;
 
 class AttenderController extends Controller
 {
@@ -99,6 +100,28 @@ class AttenderController extends Controller
                     ];
                 }
                 return setRes($errors, 400);
+            }
+
+            $mode = env("APP_ENV");
+            if ($mode === 'production') {
+                $email_domain = explode('@',$request->email);
+                $email_domain = explode('.',end($email_domain));
+                $email_domain = $email_domain[0];
+                $block_domain = BlockDomain::where('name', 'like','%'.$email_domain.'%')->first();
+                if($block_domain) {
+                    $result = [
+                        "error" => [
+                            "email" => "Email domain (".$email_domain.") is not allowed, try another email"
+                        ],
+                        "errors" => [
+                            [
+                                "field" => "Email",
+                                "message" => "Email domain (".$email_domain.") is not allowed, try another email"
+                            ]
+                        ]
+                    ];
+                    return setRes($result, 400);
+                }
             }
 
             $data = Attender::create([
