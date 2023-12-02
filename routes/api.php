@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttenderController;
+use App\Http\Controllers\BlockDomainController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingController;
 
@@ -23,14 +24,30 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group([], function() {
-    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+    Route::post('/login', [AuthController::class, 'login']);
 });
 
 Route::group([
     'prefix' => 'dashboard',
     'middleware' => 'check_token',
 ], function() {
-    Route::get('/', [DashboardController::class, 'summary'])->name('dashboard.summary');
+    Route::get('/', [DashboardController::class, 'summary']);
+});
+
+Route::group([
+    'middleware' => ['check_token', 'only_admin'],
+], function() {
+    Route::group([
+        'prefix' => 'block-domains',
+    ], function() {
+        Route::get('/', [BlockDomainController::class, 'list']);
+    });
+    Route::group([
+        'prefix' => 'block-domain',
+    ], function() {
+        Route::post('/', [BlockDomainController::class, 'create']);
+        Route::delete('/{id}', [BlockDomainController::class, 'delete']);
+    });
 });
 
 Route::group([], function() {
@@ -38,29 +55,29 @@ Route::group([], function() {
         'prefix' => 'attenders',
         'middleware' => 'check_token',
     ], function() {
-        Route::get('/', [AttenderController::class, 'list'])->name('attender.list');
+        Route::get('/', [AttenderController::class, 'list']);
     });
     Route::group([
         'prefix' => 'attender',
     ], function() {
-        Route::post('/', [AttenderController::class, 'create'])->name('attender.create');
-        Route::get('/displayed-comments', [AttenderController::class, 'getDisplayedComment'])->name('attender.getDisplayedComment');
+        Route::post('/', [AttenderController::class, 'create']);
+        Route::get('/displayed-comments', [AttenderController::class, 'getDisplayedComment']);
     });
     Route::group([
         'prefix' => 'attender',
         'middleware' => 'check_token',
     ], function() {
-        Route::get('/{id}', [AttenderController::class, 'detail'])->name('attender.detail');
-        Route::put('/attend', [AttenderController::class, 'attend'])->name('attender.attend');
+        Route::get('/{id}', [AttenderController::class, 'detail']);
+        Route::put('/attend', [AttenderController::class, 'attend']);
     });
     Route::group([
         'prefix' => 'attender',
         'middleware' => ['check_token', 'only_admin'],
     ], function() {
-        Route::get('/active/{id}', [AttenderController::class, 'activeStatus'])->name('attender.activeStatus');
-        Route::get('/regenerate-qr/{id}', [AttenderController::class, 'generateNewQr'])->name('attender.generateNewQr');
-        Route::get('/inactive/{id}', [AttenderController::class, 'inactiveStatus'])->name('attender.inactiveStatus');
-        Route::delete('/{id}', [AttenderController::class, 'delete'])->name('attender.delete');
+        Route::get('/active/{id}', [AttenderController::class, 'activeStatus']);
+        Route::get('/regenerate-qr/{id}', [AttenderController::class, 'generateNewQr']);
+        Route::get('/inactive/{id}', [AttenderController::class, 'inactiveStatus']);
+        Route::delete('/{id}', [AttenderController::class, 'delete']);
     });
 });
 
@@ -70,8 +87,8 @@ Route::group([
     Route::group([
         'middleware' => ['check_token', 'only_admin'],
     ], function() {
-        Route::post('/', [SettingController::class, 'save'])->name('setting.list');
-        Route::get('/detail', [SettingController::class, 'get'])->name('setting.list');
+        Route::post('/', [SettingController::class, 'save']);
+        Route::get('/detail', [SettingController::class, 'get']);
     });
-    Route::get('/', [SettingController::class, 'get'])->name('setting.list');
+    Route::get('/', [SettingController::class, 'get']);
 });
