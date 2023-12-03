@@ -24,6 +24,8 @@ class User extends Authenticatable
         'token',
         'forgot_token',
         'activate_token',
+        'code_no_pass',
+        'valid_code_no_pass_until',
     ];
 
     /**
@@ -36,6 +38,8 @@ class User extends Authenticatable
         'token',
         'forgot_token',
         'activate_token',
+        'code_no_pass',
+        'valid_code_no_pass_until',
     ];
 
     public function profile()

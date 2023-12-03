@@ -95,8 +95,12 @@ if (!function_exists('sendEmail')) {
 }
 
 if (!function_exists('randomString')) {
-    function randomString($max) {
-        $str_result = '!@#$%^&*0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    function randomString($max, $withSpecialCharacter = false) {
+        if($withSpecialCharacter) {
+            $str_result = '!@#$%^&*0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        } else {
+            $str_result = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        }
         return substr(str_shuffle($str_result), 0, $max);
     }
 }

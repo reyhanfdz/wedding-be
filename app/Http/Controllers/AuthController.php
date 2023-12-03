@@ -76,6 +76,165 @@ class AuthController extends Controller
 
             $update_user = User::find($data->id);
             $update_user->token = $token;
+            $update_user->code_no_pass = null;
+            $update_user->forgot_token = null;
+            $update_user->activate_token = null;
+            $update_user->valid_code_no_pass_until = null;
+            $update_user->save();
+
+            DB::commit();
+            return setRes($data, 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function loginNoPass(Request $request) {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => ['required'],
+            ], [
+                'email.required' => 'Email is required',
+            ]);
+
+            if ($validator->fails()) {
+                $errors = ['error' => [], 'errors' => []];
+                if ($validator->errors()->has('email')) {
+                    $errors['error']['email'] = $validator->errors()->first('email');
+                    $errors['errors'][] = [
+                        'field' => 'Email',
+                        'message' => $validator->errors()->first('email'),
+                    ];
+                }
+                DB::rollback();
+                return setRes($errors, 400);
+            }
+
+            $data = User::with(['profile'])->where('email', $request->email)->first();
+
+            if (!$data) {
+                DB::rollback();
+                return setRes(null, 400, 'Email or Password does not match');
+            }
+
+            if ($data->status === 1) {
+                DB::rollback();
+                return setRes(null, 400, 'Your account is not active yet');
+            }
+
+            if ($data->status === 3) {
+                DB::rollback();
+                return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
+            }
+
+            $code = randomString(10);
+            $data_code = User::where('code_no_pass', $code)->first();
+
+            if ($data_code) {
+                return $this->loginNoPass($request->all());
+            }
+
+            $date = Carbon::now()->addMinutes(30)->format('Y-m-d H:i:s');
+            $data->code_no_pass = $code;
+            $data->valid_code_no_pass_until = $date;
+            $data->save();
+
+            $data_email = [
+                'subject' => 'No Reply | Login Wihtout Password',
+                'to' => $data->email,
+                'view' => 'emails.login-no-pass',
+            ];
+            $param_email = [
+                'code' => $code,
+                'valid_token_date' => $date,
+            ];
+            sendEmail($data_email, $param_email);
+
+            DB::commit();
+            return setRes(null, 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function loginNoPassValidate(Request $request) {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => ['required'],
+                'code' => ['required'],
+            ], [
+                'email.required' => 'Email is required',
+                'code.required' => 'Email is required',
+            ]);
+
+            if ($validator->fails()) {
+                $errors = ['error' => [], 'errors' => []];
+                if ($validator->errors()->has('email')) {
+                    $errors['error']['email'] = $validator->errors()->first('email');
+                    $errors['errors'][] = [
+                        'field' => 'Email',
+                        'message' => $validator->errors()->first('email'),
+                    ];
+                }
+
+                if ($validator->errors()->has('code')) {
+                    $errors['error']['code'] = $validator->errors()->first('code');
+                    $errors['errors'][] = [
+                        'field' => 'Code',
+                        'message' => $validator->errors()->first('code'),
+                    ];
+                }
+                DB::rollback();
+                return setRes($errors, 400);
+            }
+
+            $data = User::with(['profile'])->where('email', $request->email)->first();
+
+            if (!$data) {
+                DB::rollback();
+                return setRes(null, 400, 'Code or Email does not match, check your code on your email');
+            }
+
+            if ($data->status === 1) {
+                DB::rollback();
+                return setRes(null, 400, 'Your account is not active yet');
+            }
+
+            if ($data->status === 3) {
+                DB::rollback();
+                return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
+            }
+
+            $isExpired = isTokenExpired($data->valid_code_no_pass_until);
+            if ($isExpired) {
+                DB::rollback();
+                return setRes(null, 400, 'Your code login has expired');
+            }
+
+            if ($data->code_no_pass !== $request->code) {
+                DB::rollback();
+                return setRes(null, 400, 'Code or Email does not match, check your code on your email');
+            }
+
+            $date = Carbon::now();
+            $date->addDays(5);
+            $data['expired_until'] = $date;
+            $token = encryptToken($data);
+            $data['access_token'] = $token;
+            unset($data['status']);
+            unset($data['expired_until']);
+            unset($data['profile']['user_id']);
+
+            $update_user = User::find($data->id);
+            $update_user->token = $token;
+            $update_user->code_no_pass = null;
+            $update_user->forgot_token = null;
+            $update_user->activate_token = null;
+            $update_user->valid_code_no_pass_until = null;
             $update_user->save();
 
             DB::commit();
