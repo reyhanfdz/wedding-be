@@ -74,9 +74,9 @@ if (!function_exists('decryptToken')) {
 if (!function_exists('isTokenExpired')) {
     function isTokenExpired($valid_until) {
         $result = false;
-        $user_valid_token = Carbon::parse($valid_until);
+        $valid_token = Carbon::parse($valid_until);
         $now = Carbon::now();
-        if($user_valid_token < $now) $result = true;
+        if($valid_token < $now) $result = true;
         return $result;
     }
 }
@@ -91,5 +91,16 @@ if (!function_exists('sendEmail')) {
         ];
         $notification_params['params']['subject'] = $data['subject'];
         Mail::send(new MailNotification($notification_params));
+    }
+}
+
+if (!function_exists('randomString')) {
+    function randomString($max, $withSpecialCharacter = false) {
+        if($withSpecialCharacter) {
+            $str_result = '!@#$%^&*0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        } else {
+            $str_result = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        }
+        return substr(str_shuffle($str_result), 0, $max);
     }
 }

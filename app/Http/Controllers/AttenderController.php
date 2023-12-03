@@ -139,7 +139,7 @@ class AttenderController extends Controller
             $data->save();
 
             $data_email = [
-                'subject' => 'Ade & Nova | Generate QR Code',
+                'subject' => 'No Reply | Submit Reservation',
                 'to' => $data->email,
                 'view' => 'emails.qr',
             ];
@@ -282,6 +282,15 @@ class AttenderController extends Controller
             $data->status_attend = 2;
             $data->link_qr = null;
             $data->save();
+
+            $data_email = [
+            'subject' => 'No Reply | Attend',
+            'to' => $data->email,
+            'view' => 'emails.scan-qr',
+            ];
+            $param_email = ['link_qr' => $link];
+            sendEmail($data_email, $param_email);
+
             DB::commit();
             unset($data['status_attend']);
             return setRes($data, 201);
@@ -318,7 +327,7 @@ class AttenderController extends Controller
             $data->save();
 
             $data_email = [
-                'subject' => 'Ade & Nova | Regenerate QR Code',
+                'subject' => 'No Reply | Regenerate QR Code',
                 'to' => $data->email,
                 'view' => 'emails.refresh-qr',
             ];
