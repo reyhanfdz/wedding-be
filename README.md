@@ -24,6 +24,9 @@ This is the API for weeding management content
         - APP_ENV=yourEnviroment (sample: local, development, staging, production)
         - APP_DEBUG=true (for enviroment production it should be false)
         - APP_URL=yourUrlApps (default http://localhost:8000)
+        - APP_URL=http://localhost #Do not with slash (/) at the end (your API your main)
+        - APP_TIMEZONE="Asia/Jakarta" (your timezone, here default Asia/Jakrta)
+        - APP_FE_URL=http://localhost:3000/ #With slash (/) at the end (your FE domain) 
         - DB_CONNECTION=mysql (Your database connection)
         - DB_HOST=127.0.0.1 (Your Database url / ip)
         - DB_PORT=3306 (Your Database port)
@@ -45,9 +48,9 @@ This is the API for weeding management content
         - EMAIL_STAFF="yourEmail@gmail.com" (dont same with EMAIL_ADMIN)
         - PHONE_STAFF="+628xxxxxx" (dont same with PHONE_ADMIN)
         - NAME_STAFF="yourName as Staff"
-    - For MAIL (Mailer / SMTP) your need SMTP credentials, how to setup using gmail?
+    - For MAIL (Mailer / SMTP) your need Mailer / SMTP credentials, how to setup using gmail?
         - go to **[here](https://myaccount.google.com/security)**
-        - 2nd Verification should be on / active (klik arrow right or option to open seeting 2nd Verification)
+        - 2nd Verification should be on or active (klik arrow right or option to open setting 2nd Verification)
         - Follow the instruction from google and make sure use active phone number for OTP
         - After it activated, and you got to the setting 2nd Verification again, go to the bottom of page there is should be Application Password section
         - Go there and Fill App name, the you will get password, copy and save (to note or anything) it for your SMTP Password
@@ -60,6 +63,7 @@ This is the API for weeding management content
             - MAIL_ENCRYPTION=tls (default tls)
             - MAIL_FROM_ADDRESS="yourEmail@gmail.com" (Enter the email that has been set to 2nd verification)
             - MAIL_FROM_NAME="yourName" (Enter your name or app name, it will show as email from when the receiver get email from your app)
+    - The reset Enviroment you can set as default by .env.example
 8. Install Package
     - run command: composer install
 9. Generate key laravel

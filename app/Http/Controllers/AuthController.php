@@ -24,7 +24,6 @@ class AuthController extends Controller
             ]);
 
             if ($validator->fails()) {
-                DB::rollback();
                 $errors = ['error' => [], 'errors' => []];
                 if ($validator->errors()->has('email')) {
                     $errors['error']['email'] = $validator->errors()->first('email');
@@ -40,6 +39,7 @@ class AuthController extends Controller
                         'message' => $validator->errors()->first('password'),
                     ];
                 }
+                DB::rollback();
                 return setRes($errors, 400);
             }
 
@@ -75,6 +75,145 @@ class AuthController extends Controller
 
             DB::commit();
             return setRes($data, 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function forgotPassword(Request $request) {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => ['required'],
+            ], [
+                'email.required' => 'Email is required',
+            ]);
+
+            if ($validator->fails()) {
+                DB::rollback();
+                $errors = ['error' => [], 'errors' => []];
+                if ($validator->errors()->has('email')) {
+                    $errors['error']['email'] = $validator->errors()->first('email');
+                    $errors['errors'][] = [
+                        'field' => 'Email',
+                        'message' => $validator->errors()->first('email'),
+                    ];
+                }
+                DB::rollback();
+                return setRes($errors, 400);
+            }
+
+            $data = User::where('email', $request->email)->first();
+
+            if(!$data) {
+                DB::rollback();
+                return setRes(null, 404, "We can't find your account make sure you fill the correct email");
+            }
+
+            $date = Carbon::now();
+            $date->addMinutes(30);
+            $enc_data = [
+                'id' => $data->id,
+                'expired_until' => $date,
+            ];
+            $token = encryptToken($enc_data);
+            $data->forgot_token = $token;
+            $data->save();
+
+            $data_email = [
+                'subject' => 'No Reply | Ade & Nova | Forgot Password',
+                'to' => $data->email,
+                'view' => 'emails.forgot-password',
+            ];
+            $param_email = [
+                'link_forgot' => env('APP_FE_URL')."reset-password/".$token,
+                'valid_token_date' => Carbon::parse($date)->format('Y-m-d H:i:s'),
+            ];
+            sendEmail($data_email, $param_email);
+            DB::commit();
+            return setRes(null, 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function resetPassword(Request $request) {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'token' => ['required'],
+                'password' => ['required', 'regex:/^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]+$/'],
+            ], [
+                'token.required' => 'Email is required',
+                'password.required' => 'Password is required',
+                'password.regex' => 'Password format is invalid (must be containt alphabet, numeric and special character)',
+            ]);
+
+            if ($validator->fails()) {
+                DB::rollback();
+                $errors = ['error' => [], 'errors' => []];
+                if ($validator->errors()->has('token')) {
+                    $errors['error']['token'] = $validator->errors()->first('token');
+                    $errors['errors'][] = [
+                        'field' => 'Token',
+                        'message' => $validator->errors()->first('token'),
+                    ];
+                }
+
+                if ($validator->errors()->has('password')) {
+                    $errors['error']['password'] = $validator->errors()->first('password');
+                    $errors['errors'][] = [
+                        'field' => 'Password',
+                        'message' => $validator->errors()->first('password'),
+                    ];
+                }
+                DB::rollback();
+                return setRes($errors, 400);
+            }
+
+            $decode_token = decryptToken($request->token);
+            if($decode_token == 'error') {
+                DB::rollback();
+                return setRes($errors, 400, "Invalid token reset password");
+            }
+
+            $isExpired = isTokenExpired($decode_token->expired_until);
+            if($isExpired) {
+                DB::rollback();
+                return setRes(null, 401, 'Token reset password has expired');
+            }
+
+            $data_token = User::where('forgot_token', $request->token)->first();
+
+            if(!$data_token) {
+                DB::rollback();
+                return setRes(null, 404, "Invalid token reset password");
+            }
+
+            $data = User::find($decode_token->id);
+            if(!$data) {
+                DB::rollback();
+                return setRes(null, 404, "User not found");
+            }
+
+            $data->password = Hash::make($request->password);
+            $data->token = null;
+            $data->forgot_token = null;
+            $data->save();
+
+            $data_email = [
+                'subject' => 'No Reply | Ade & Nova | Reset Password',
+                'to' => $data->email,
+                'view' => 'emails.reset-password',
+            ];
+            $param_email = [
+                'link_login' => env('APP_FE_URL')."login",
+            ];
+            sendEmail($data_email, $param_email);
+            DB::commit();
+            return setRes(null, 200);
         } catch (\Exception $e) {
             DB::rollback();
             return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
