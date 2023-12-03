@@ -27,6 +27,8 @@ Route::group([], function() {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/activate-account', [AuthController::class, 'activateAccount']);
+    Route::post('/activate-account-validate', [AuthController::class, 'activateAccountValidate']);
 });
 
 Route::group([

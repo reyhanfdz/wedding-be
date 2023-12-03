@@ -42,12 +42,12 @@ This is the API for weeding management content
         - MAIL_FROM_ADDRESS= (need setup SMTP account first)
         - MAIL_FROM_NAME= (need setup SMTP account first)
         - EMAIL_ADMIN="yourEmail@gmail.com" (Your email for login app as Admin)
-        - PHONE_WHATSAPP="+628xxxxxx" (Your phone whatsapp)
         - PHONE_ADMIN="+628xxxxxx" (Your phone number)
         - NAME_ADMIN="yourName as Admin"
         - EMAIL_STAFF="yourEmail@gmail.com" (dont same with EMAIL_ADMIN)
         - PHONE_STAFF="+628xxxxxx" (dont same with PHONE_ADMIN)
         - NAME_STAFF="yourName as Staff"
+        - PHONE_WHATSAPP="+628xxxxxx" (Your whatsapp admin)
     - For MAIL (Mailer / SMTP) your need Mailer / SMTP credentials, how to setup using gmail?
         - go to **[here](https://myaccount.google.com/security)**
         - 2nd Verification should be on or active (klik arrow right or option to open setting 2nd Verification)

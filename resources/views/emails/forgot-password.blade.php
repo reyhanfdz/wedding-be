@@ -18,7 +18,7 @@
             <br />
             <hr style="border:1px solid #9F5A8D" />
             <br />
-            <center><span style="font-size: 10px">URL Reset password valid until {{ $data['valid_token_date'] }}</span></center>
+            <center><span style="font-size: 10px">URL reset password valid until <b>{{ $data['valid_token_date'] }}</b></span></center>
             <br />
             <br />
         </div>

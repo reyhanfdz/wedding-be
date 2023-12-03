@@ -23,6 +23,7 @@ class User extends Authenticatable
         'status',
         'token',
         'forgot_token',
+        'activate_token',
     ];
 
     /**
@@ -34,6 +35,7 @@ class User extends Authenticatable
         'password',
         'token',
         'forgot_token',
+        'activate_token',
     ];
 
     public function profile()
