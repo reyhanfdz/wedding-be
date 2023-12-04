@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MailNotification;
@@ -102,5 +103,59 @@ if (!function_exists('randomString')) {
             $str_result = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
         }
         return substr(str_shuffle($str_result), 0, $max);
+    }
+}
+
+if (!function_exists('isBase64Valid')) {
+    function isBase64Valid($data) {
+        try {
+            if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $data)) return false;
+            $decoded = base64_decode($data, true);
+            if(false === $decoded) return false;
+            if(base64_encode($decoded) != $data) return false;
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('getUser')) {
+    function getUser($token) {
+        try {
+            return decryptToken($token);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+}
+
+if (!function_exists('getUserId')) {
+    function getUserId($token) {
+        try {
+            return decryptToken($token)->id;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+}
+
+if (!function_exists('getProfile')) {
+    function getProfile($token) {
+        try {
+            return decryptToken($token)->profile;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+}
+
+if (!function_exists('getProfileId')) {
+    function getProfileId($token) {
+        try {
+            return decryptToken($token)->profile->id;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

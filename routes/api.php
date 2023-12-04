@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttenderController;
 use App\Http\Controllers\BlockDomainController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 
 /*
@@ -38,6 +39,17 @@ Route::group([
     'middleware' => 'check_token',
 ], function() {
     Route::get('/', [DashboardController::class, 'summary']);
+});
+
+Route::group([
+    'prefix' => 'profile',
+    'middleware' => 'check_token',
+], function() {
+    Route::get('/', [ProfileController::class, 'get']);
+    Route::put('/', [ProfileController::class, 'update']);
+    Route::post('/change-password', [ProfileController::class, 'changePassword']);
+    Route::post('/check-username', [ProfileController::class, 'checkUsername']);
+    Route::post('/change-username', [ProfileController::class, 'changeUsername']);
 });
 
 Route::group([

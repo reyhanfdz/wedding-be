@@ -43,19 +43,19 @@ class AuthController extends Controller
                 return setRes($errors, 400);
             }
 
-            $data = User::with(['profile'])->where('email', $request->email)->first();
+            $data = User::with(['profile'])->where('email', $request->email)->orWhere('username', $request->email)->first();
 
             if (!$data) {
                 DB::rollback();
                 return setRes(null, 400, 'Email or Password does not match');
             }
 
-            if ($data->status === 1) {
+            if ($data->status === User::$inactive) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is not active yet');
             }
 
-            if ($data->status === 3) {
+            if ($data->status === User::$disabled) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
             }
@@ -140,19 +140,19 @@ class AuthController extends Controller
                 return setRes($errors, 400);
             }
 
-            $data = User::with(['profile'])->where('email', $request->email)->first();
+            $data = User::with(['profile'])->where('email', $request->email)->orWhere('username', $request->email)->first();
 
             if (!$data) {
                 DB::rollback();
                 return setRes(null, 400, 'Email or Password does not match');
             }
 
-            if ($data->status === 1) {
+            if ($data->status === User::$inactive) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is not active yet');
             }
 
-            if ($data->status === 3) {
+            if ($data->status === User::$disabled) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
             }
@@ -220,19 +220,19 @@ class AuthController extends Controller
                 return setRes($errors, 400);
             }
 
-            $data = User::with(['profile'])->where('email', $request->email)->first();
+            $data = User::with(['profile'])->where('email', $request->email)->orWhere('username', $request->email)->first();
 
             if (!$data) {
                 DB::rollback();
                 return setRes(null, 400, 'Code or Email does not match, check your code on your email');
             }
 
-            if ($data->status === 1) {
+            if ($data->status === User::$inactive) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is not active yet');
             }
 
-            if ($data->status === 3) {
+            if ($data->status === User::$disabled) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
             }
@@ -439,9 +439,9 @@ class AuthController extends Controller
                 return setRes(null, 404, "We can't find your account make sure you fill the correct email");
             }
 
-            if($data->status == 2) {
+            if($data->status == User::$active) {
                 DB::rollback();
-                return setRes(null, 404, "Your account is active, can not reactive");
+                return setRes(null, 404, "Your account is active, cannot reactivate");
             }
 
             if($data->status == 3) {
