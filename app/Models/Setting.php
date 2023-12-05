@@ -9,6 +9,9 @@ class Setting extends Model
 {
     use HasFactory;
 
+    public static $inactive = 1;
+    public static $active = 2;
+
     protected $fillable = [
         'status',
         'groom_fullname',

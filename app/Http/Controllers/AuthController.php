@@ -525,7 +525,7 @@ class AuthController extends Controller
                 return setRes(null, 404, "User not found");
             }
 
-            $data->status = 2;
+            $data->status = User::$active;
             $data->token = null;
             $data->activate_token = null;
             $data->save();
