@@ -106,24 +106,10 @@ if (!function_exists('randomString')) {
     }
 }
 
-if (!function_exists('isBase64Valid')) {
-    function isBase64Valid($data) {
-        try {
-            if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $data)) return false;
-            $decoded = base64_decode($data, true);
-            if(false === $decoded) return false;
-            if(base64_encode($decoded) != $data) return false;
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-}
-
 if (!function_exists('getUser')) {
-    function getUser($token) {
+    function getUser($request) {
         try {
-            return decryptToken($token);
+            return decryptToken($request->header('Authorization'));
         } catch (\Exception $e) {
             return null;
         }
@@ -131,9 +117,9 @@ if (!function_exists('getUser')) {
 }
 
 if (!function_exists('getUserId')) {
-    function getUserId($token) {
+    function getUserId($request) {
         try {
-            return decryptToken($token)->id;
+            return decryptToken($request->header('Authorization'))->id;
         } catch (\Exception $e) {
             return null;
         }
@@ -141,9 +127,9 @@ if (!function_exists('getUserId')) {
 }
 
 if (!function_exists('getProfile')) {
-    function getProfile($token) {
+    function getProfile($request) {
         try {
-            return decryptToken($token)->profile;
+            return decryptToken($request->header('Authorization'))->profile;
         } catch (\Exception $e) {
             return null;
         }
@@ -151,9 +137,9 @@ if (!function_exists('getProfile')) {
 }
 
 if (!function_exists('getProfileId')) {
-    function getProfileId($token) {
+    function getProfileId($request) {
         try {
-            return decryptToken($token)->profile->id;
+            return decryptToken($request->header('Authorization'))->profile->id;
         } catch (\Exception $e) {
             return null;
         }

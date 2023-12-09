@@ -8,6 +8,7 @@ use App\Http\Controllers\BlockDomainController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,7 @@ Route::group([
     Route::post('/change-password', [ProfileController::class, 'changePassword']);
     Route::post('/check-username', [ProfileController::class, 'checkUsername']);
     Route::post('/change-username', [ProfileController::class, 'changeUsername']);
+    Route::post('/change-picture', [ProfileController::class, 'changePicture']);
 });
 
 Route::group([
@@ -65,6 +67,27 @@ Route::group([
     ], function() {
         Route::post('/', [BlockDomainController::class, 'create']);
         Route::delete('/{id}', [BlockDomainController::class, 'delete']);
+    });
+});
+
+Route::group([
+    'middleware' => ['check_token', 'only_admin'],
+], function() {
+    Route::group([
+        'prefix' => 'users',
+    ], function() {
+        Route::get('/', [UserController::class, 'list']);
+    });
+    Route::group([
+        'prefix' => 'user',
+    ], function() {
+        Route::post('/', [UserController::class, 'create']);
+        Route::get('/{id}', [UserController::class, 'detail']);
+        Route::get('/active/{id}', [UserController::class, 'active']);
+        Route::get('/inactive/{id}', [UserController::class, 'inactive']);
+        Route::get('/disable/{id}', [UserController::class, 'disable']);
+        Route::get('/reset-password/{id}', [UserController::class, 'resetPassword']);
+        Route::delete('/{id}', [UserController::class, 'delete']);
     });
 });
 

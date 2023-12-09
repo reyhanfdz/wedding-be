@@ -13,7 +13,7 @@ class ProfileController extends Controller
 {
     function get(Request $request) {
         try {
-            $id = decryptToken($request->header('Authorization'))->id;
+            $id = getUserId($request);
 
             $data = User::with('profile')->find($id);
             if(!$data) {
@@ -32,11 +32,13 @@ class ProfileController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
-                'name' => ['required'],
-                'phone' => ['required'],
+                'name' => ['required', 'regex:/^[a-zA-Z ]+$/'],
+                'phone' => ['required', 'regex:/^[+]{1}(?:[0-9]\s?){6,15}[0-9]{1}$/'],
             ], [
                 'name.required' => 'Name is required',
+                'name.regex' => 'Name format is invalid, only alphabet and space',
                 'phone.required' => 'Phone is required',
+                'phone.regex' => 'Phone format is invalid, make sure to use country code like +62, min 6 char and max 15 char',
             ]);
 
             if ($validator->fails()) {
@@ -59,7 +61,7 @@ class ProfileController extends Controller
                 return setRes($errors, 400);
             }
 
-            $id = decryptToken($request->header('Authorization'))->profile->id;
+            $id = getProfileId($request);
             $data = Profile::find($id);
 
             if(!$data) {
@@ -67,9 +69,19 @@ class ProfileController extends Controller
                 return setRes(null, 404, 'User not found');
             }
 
+            $check_phone = Profile::where('phone', $request->phone)->where('id', '!=', $id)->first();
+            if($check_phone) {
+                $errors['error']['phone'] = 'Phone has been taken, try another phone number';
+                $errors['errors'][] = [
+                    'field' => 'Phone',
+                    'message' => 'Phone has been taken, try another phone number',
+                ];
+                DB::rollback();
+                return setRes($errors, 400);
+            }
+
             $data->name = $request->name;
             $data->phone = $request->phone;
-            if (isBase64Valid($request->image)) $data->image = $request->image;
             $data->save();
 
             DB::commit();
@@ -112,7 +124,7 @@ class ProfileController extends Controller
                 return setRes($errors, 400);
             }
 
-            $id = decryptToken($request->header('Authorization'))->profile->id;
+            $id = getProfileId($request);
             $data = Profile::with('user')->find($id);
 
             if(!$data) {
@@ -163,7 +175,7 @@ class ProfileController extends Controller
                 return setRes($errors, 400);
             }
 
-            $id = decryptToken($request->header('Authorization'))->profile->id;
+            $id = getProfileId($request);
             $data = Profile::with('user')->find($id);
 
             if (!$data) {
@@ -213,7 +225,7 @@ class ProfileController extends Controller
                 return setRes($errors, 400);
             }
 
-            $id = decryptToken($request->header('Authorization'))->profile->id;
+            $id = getProfileId($request);
             $data = Profile::with('user')->find($id);
 
             if (!$data) {
@@ -237,6 +249,44 @@ class ProfileController extends Controller
             $user->save();
             DB::commit();
             return setRes(null, 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);
+        }
+    }
+
+    function changePicture(Request $request) {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'image' => ['required'],
+            ], [
+                'image.required' => 'Username is required',
+            ]);
+
+            if ($validator->fails()) {
+                if ($validator->errors()->has('image')) {
+                    $errors['error']['image'] = $validator->errors()->first('image');
+                    $errors['errors'][] = [
+                        'field' => 'Image',
+                        'message' => $validator->errors()->first('image'),
+                    ];
+                }
+                DB::rollback();
+                return setRes($errors, 400);
+            }
+
+            $id = getProfileId($request);
+            $profile = Profile::find($id);
+            if (!$profile) {
+                DB::rollback();
+                return setRes(null, 404);
+            }
+
+            $profile->image = $request->image;
+            $profile->save();
+            DB::commit();
+            return setRes(null, 201);
         } catch (\Exception $e) {
             DB::rollback();
             return setRes(null, $e->getMessage() ? 400 : 500, $e->getMessage() ?? null);

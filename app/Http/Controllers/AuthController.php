@@ -67,9 +67,12 @@ class AuthController extends Controller
 
             $date = Carbon::now();
             $date->addDays(5);
+            $profile_image = $data->profile->image;
             $data['expired_until'] = $date;
+            unset($data['profile']['image']);
             $token = encryptToken($data);
             $data['access_token'] = $token;
+            $data->profile->image = $profile_image;
             unset($data['status']);
             unset($data['expired_until']);
             unset($data['profile']['user_id']);
@@ -251,12 +254,14 @@ class AuthController extends Controller
             $date = Carbon::now();
             $date->addDays(5);
             $data['expired_until'] = $date;
+            $profile_image = $data->profile->image;
+            unset($data['profile']['image']);
             $token = encryptToken($data);
             $data['access_token'] = $token;
             unset($data['status']);
             unset($data['expired_until']);
             unset($data['profile']['user_id']);
-
+            $data->profile->image = $profile_image;
             $update_user = User::find($data->id);
             $update_user->token = $token;
             $update_user->code_no_pass = null;
@@ -444,7 +449,7 @@ class AuthController extends Controller
                 return setRes(null, 404, "Your account is active, cannot reactivate");
             }
 
-            if($data->status == 3) {
+            if($data->status == User::$disabled) {
                 DB::rollback();
                 return setRes(null, 404, "Your account is disabled by admin, contact admin to open your account (email:".env("EMAIL_ADMIN").', whatsapp: '.env("PHONE_WHATSAPP").")");
             }
@@ -523,6 +528,16 @@ class AuthController extends Controller
             if(!$data) {
                 DB::rollback();
                 return setRes(null, 404, "User not found");
+            }
+
+            if($data->status === User::$active) {
+                DB::rollback();
+                return setRes(null, 404, "Your account is active, cannot reactivate");
+            }
+
+            if($data->status === User::$disabled) {
+                DB::rollback();
+                return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
             }
 
             $data->status = User::$active;
