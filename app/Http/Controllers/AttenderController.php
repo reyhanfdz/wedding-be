@@ -134,7 +134,7 @@ class AttenderController extends Controller
             ]);
             unset($data['link_qr']);
             $token = encryptToken($data);
-            $link = "https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=".$token;
+            $link = Attender::$qr_url.$token;
             $data->link_qr = $token;
             $data->save();
 
@@ -178,12 +178,12 @@ class AttenderController extends Controller
                 return setRes(null, 404);
             }
 
-            if($data->status == 2) {
+            if($data->status == Attender::$comment_displayed) {
                 DB::rollback();
                 return setRes(null, 400, "This attenders is currently active, can't set to active");
             }
 
-            $data->status = 2;
+            $data->status = Attender::$comment_displayed;
             $data->save();
             DB::commit();
             return setRes(null, 200);
@@ -203,12 +203,12 @@ class AttenderController extends Controller
                 return setRes(null, 404);
             }
 
-            if($data->status == 1) {
+            if($data->status == Attender::$comment_not_displayed) {
                 DB::rollback();
                 return setRes(null, 400, "This attenders is currently inactive, can't set to inactive");
             }
 
-            $data->status = 1;
+            $data->status = Attender::$comment_not_displayed;
             $data->save();
             DB::commit();
             return setRes(null, 200);
@@ -274,19 +274,19 @@ class AttenderController extends Controller
                 DB::rollback();
                 return setRes(null, 400, 'Invalid token QR, You may has request regenarate new QR before');
             }
-            if((int) $data->status_attend === 2) {
+            if((int) $data->status_attend === Attender::$qr_scaned) {
                 DB::rollback();
                 return setRes(null, 400, 'You have attend before, cannot attend with the same data');
             }
 
-            $data->status_attend = 2;
+            $data->status_attend = Attender::$qr_scaned;
             $data->link_qr = null;
             $data->save();
 
             $data_email = [
-            'subject' => 'No Reply | Attend',
-            'to' => $data->email,
-            'view' => 'emails.scan-qr',
+                'subject' => 'No Reply | Attend',
+                'to' => $data->email,
+                'view' => 'emails.scan-qr',
             ];
             $param_email = ['link_qr' => $link];
             sendEmail($data_email, $param_email);
@@ -322,7 +322,7 @@ class AttenderController extends Controller
             $data->link_qr = null;
             unset($data['link_qr']);
             $token = encryptToken($data);
-            $link = "https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=".$token;
+            $link = Attender::$qr_url.$token;
             $data->link_qr = $token;
             $data->save();
 

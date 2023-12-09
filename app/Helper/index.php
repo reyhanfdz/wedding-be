@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MailNotification;
@@ -102,5 +103,45 @@ if (!function_exists('randomString')) {
             $str_result = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
         }
         return substr(str_shuffle($str_result), 0, $max);
+    }
+}
+
+if (!function_exists('getUser')) {
+    function getUser($request) {
+        try {
+            return decryptToken($request->header('Authorization'));
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+}
+
+if (!function_exists('getUserId')) {
+    function getUserId($request) {
+        try {
+            return decryptToken($request->header('Authorization'))->id;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+}
+
+if (!function_exists('getProfile')) {
+    function getProfile($request) {
+        try {
+            return decryptToken($request->header('Authorization'))->profile;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+}
+
+if (!function_exists('getProfileId')) {
+    function getProfileId($request) {
+        try {
+            return decryptToken($request->header('Authorization'))->profile->id;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

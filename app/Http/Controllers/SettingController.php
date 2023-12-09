@@ -17,7 +17,7 @@ class SettingController extends Controller
                 return setRes(null, 404);
             }
 
-            $data->status = $request->status ?? $data->status ?? "";
+            $data->status = $request->status ?? $data->status ?? Setting::$inactive;
             $data->groom_fullname = $request->groom_fullname ?? $data->groom_fullname ?? "";
             $data->groom_nickname = $request->groom_nickname ?? $data->groom_nickname ?? "";
             $data->groom_about = $request->groom_about ?? $data->groom_about ?? "";
@@ -32,6 +32,7 @@ class SettingController extends Controller
             $data->bride_facebook = $request->bride_facebook ?? $data->bride_facebook ?? "";
             $data->bride_instagram = $request->bride_instagram ?? $data->bride_instagram ?? "";
             $data->bride_picture = $request->bride_picture ?? $data->bride_picture ?? "";
+            $data->home_couple_picture = $request->home_couple_picture ?? $data->home_couple_picture ?? "";
             $data->about_us_bg = $request->about_us_bg ?? $data->about_us_bg ?? "";
             $data->first_meet_date = $request->first_meet_date ?? $data->first_meet_date ?? null;
             $data->first_meet_picture = $request->first_meet_picture ?? $data->first_meet_picture ?? "";
@@ -120,9 +121,7 @@ class SettingController extends Controller
     function get() {
         try {
             $data = Setting::find(1);
-            if (!$data) {
-                return setRes(null, 404);
-            }
+            if (!$data) return setRes(null, 404);
 
             if (!$data->groom_fullname) $data->groom_fullname = "";
             if (!$data->groom_nickname) $data->groom_nickname = "";
@@ -138,6 +137,7 @@ class SettingController extends Controller
             if (!$data->bride_facebook) $data->bride_facebook = "";
             if (!$data->bride_instagram) $data->bride_instagram = "";
             if (!$data->bride_picture) $data->bride_picture = "";
+            if (!$data->home_couple_picture) $data->home_couple_picture = "";
             if (!$data->about_us_bg) $data->about_us_bg = "";
             if (!$data->first_meet_date) $data->first_meet_date = null;
             if (!$data->first_meet_picture) $data->first_meet_picture = "";

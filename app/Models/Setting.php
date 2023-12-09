@@ -9,6 +9,9 @@ class Setting extends Model
 {
     use HasFactory;
 
+    public static $inactive = 1;
+    public static $active = 2;
+
     protected $fillable = [
         'status',
         'groom_fullname',
@@ -25,6 +28,7 @@ class Setting extends Model
         'bride_facebook',
         'bride_instagram',
         'bride_picture',
+        'home_couple_picture',
         'about_us_bg',
         'first_meet_date',
         'first_meet_picture',

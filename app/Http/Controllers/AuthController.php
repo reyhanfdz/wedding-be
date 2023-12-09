@@ -43,19 +43,19 @@ class AuthController extends Controller
                 return setRes($errors, 400);
             }
 
-            $data = User::with(['profile'])->where('email', $request->email)->first();
+            $data = User::with(['profile'])->where('email', $request->email)->orWhere('username', $request->email)->first();
 
             if (!$data) {
                 DB::rollback();
                 return setRes(null, 400, 'Email or Password does not match');
             }
 
-            if ($data->status === 1) {
+            if ($data->status === User::$inactive) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is not active yet');
             }
 
-            if ($data->status === 3) {
+            if ($data->status === User::$disabled) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
             }
@@ -67,9 +67,12 @@ class AuthController extends Controller
 
             $date = Carbon::now();
             $date->addDays(5);
+            $profile_image = $data->profile->image;
             $data['expired_until'] = $date;
+            unset($data['profile']['image']);
             $token = encryptToken($data);
             $data['access_token'] = $token;
+            $data->profile->image = $profile_image;
             unset($data['status']);
             unset($data['expired_until']);
             unset($data['profile']['user_id']);
@@ -140,19 +143,19 @@ class AuthController extends Controller
                 return setRes($errors, 400);
             }
 
-            $data = User::with(['profile'])->where('email', $request->email)->first();
+            $data = User::with(['profile'])->where('email', $request->email)->orWhere('username', $request->email)->first();
 
             if (!$data) {
                 DB::rollback();
                 return setRes(null, 400, 'Email or Password does not match');
             }
 
-            if ($data->status === 1) {
+            if ($data->status === User::$inactive) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is not active yet');
             }
 
-            if ($data->status === 3) {
+            if ($data->status === User::$disabled) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
             }
@@ -220,19 +223,19 @@ class AuthController extends Controller
                 return setRes($errors, 400);
             }
 
-            $data = User::with(['profile'])->where('email', $request->email)->first();
+            $data = User::with(['profile'])->where('email', $request->email)->orWhere('username', $request->email)->first();
 
             if (!$data) {
                 DB::rollback();
                 return setRes(null, 400, 'Code or Email does not match, check your code on your email');
             }
 
-            if ($data->status === 1) {
+            if ($data->status === User::$inactive) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is not active yet');
             }
 
-            if ($data->status === 3) {
+            if ($data->status === User::$disabled) {
                 DB::rollback();
                 return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
             }
@@ -251,12 +254,14 @@ class AuthController extends Controller
             $date = Carbon::now();
             $date->addDays(5);
             $data['expired_until'] = $date;
+            $profile_image = $data->profile->image;
+            unset($data['profile']['image']);
             $token = encryptToken($data);
             $data['access_token'] = $token;
             unset($data['status']);
             unset($data['expired_until']);
             unset($data['profile']['user_id']);
-
+            $data->profile->image = $profile_image;
             $update_user = User::find($data->id);
             $update_user->token = $token;
             $update_user->code_no_pass = null;
@@ -439,12 +444,12 @@ class AuthController extends Controller
                 return setRes(null, 404, "We can't find your account make sure you fill the correct email");
             }
 
-            if($data->status == 2) {
+            if($data->status == User::$active) {
                 DB::rollback();
-                return setRes(null, 404, "Your account is active, can not reactive");
+                return setRes(null, 404, "Your account is active, cannot reactivate");
             }
 
-            if($data->status == 3) {
+            if($data->status == User::$disabled) {
                 DB::rollback();
                 return setRes(null, 404, "Your account is disabled by admin, contact admin to open your account (email:".env("EMAIL_ADMIN").', whatsapp: '.env("PHONE_WHATSAPP").")");
             }
@@ -525,7 +530,17 @@ class AuthController extends Controller
                 return setRes(null, 404, "User not found");
             }
 
-            $data->status = 2;
+            if($data->status === User::$active) {
+                DB::rollback();
+                return setRes(null, 404, "Your account is active, cannot reactivate");
+            }
+
+            if($data->status === User::$disabled) {
+                DB::rollback();
+                return setRes(null, 400, 'Your account is disabled by admin, contact admin to enable your account (email:'.env('EMAIL_ADMIN').', whatsapp:'.env('PHONE_WHATSAPP').')');
+            }
+
+            $data->status = User::$active;
             $data->token = null;
             $data->activate_token = null;
             $data->save();
