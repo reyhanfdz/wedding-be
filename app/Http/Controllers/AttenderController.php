@@ -52,7 +52,7 @@ class AttenderController extends Controller
                 'name.max' => 'Name max 50 character',
                 'name.regex' => 'Name format is invalid (only alphabet and space)',
                 'email.required' => 'Email is required',
-                'email.unique' => 'Email filled, please try another email',
+                'email.unique' => 'Email has been taken, please try another email',
                 'email.max' => 'Email max 50 character',
                 'email.regex' => 'Email format is invalid',
                 'participants.required' => 'Participants is required',
