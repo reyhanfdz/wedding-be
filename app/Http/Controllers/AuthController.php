@@ -97,22 +97,17 @@ class AuthController extends Controller
         DB::beginTransaction();
         try {
             $token = $request->header('Authorization');
-
-            $data = User::where('token', $token)->first();
-            if(!$data) {
-                DB::rollback();
-                return setRes(null, 404, 'User not found');
+            if($token) {
+                $data = User::where('token', $token)->first();
+                if($data) {
+                    $data->token = null;
+                    $data->code_no_pass = null;
+                    $data->forgot_token = null;
+                    $data->activate_token = null;
+                    $data->valid_code_no_pass_until = null;
+                    $data->save();
+                }
             }
-
-            $decode_token = decryptToken($token);
-
-            $data->token = null;
-            $data->code_no_pass = null;
-            $data->forgot_token = null;
-            $data->activate_token = null;
-            $data->valid_code_no_pass_until = null;
-            $data->save();
-
             DB::commit();
             return setRes(null, 200);
         } catch (\Exception $e) {
@@ -265,8 +260,6 @@ class AuthController extends Controller
             $update_user = User::find($data->id);
             $update_user->token = $token;
             $update_user->code_no_pass = null;
-            $update_user->forgot_token = null;
-            $update_user->activate_token = null;
             $update_user->valid_code_no_pass_until = null;
             $update_user->save();
 

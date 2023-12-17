@@ -13,7 +13,7 @@ class AttenderController extends Controller
     function list(Request $request) {
         try {
             $current_page = isset($request->page) ? $request->page : 1;
-            $limit = isset($request->limit) ? $request->limit : 1;
+            $limit = isset($request->limit) ? $request->limit : 10;
             $keyword = isset($request->keyword) ? $request->keyword : null;
             $attendance = isset($request->attendance) && $request->attendance != 0 ? $request->attendance : null;
             $status = isset($request->status) && $request->status != 0 ? $request->status : null;
@@ -288,7 +288,7 @@ class AttenderController extends Controller
                 'to' => $data->email,
                 'view' => 'emails.scan-qr',
             ];
-            $param_email = ['link_qr' => $link];
+            $param_email = [];
             sendEmail($data_email, $param_email);
 
             DB::commit();

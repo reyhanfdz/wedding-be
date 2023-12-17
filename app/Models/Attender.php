@@ -9,7 +9,7 @@ class Attender extends Model
 {
     use HasFactory;
 
-    public static $qr_url = "https://api.qrserver.com/v1/create-qr-code/?size=400x400&bgcolor=fceff8&color=77536d&qzone=1&data=";
+    public static $qr_url = "https://api.qrserver.com/v1/create-qr-code/?size=400x400&bgcolor=ffffff&color=77536d&qzone=1&data=";
     public static $will_attend = 1;             //attendance
     public static $will_not_attend = 2;         //attendance
     public static $comment_not_displayed = 1;   //status

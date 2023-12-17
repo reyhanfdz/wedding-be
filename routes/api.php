@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttenderController;
 use App\Http\Controllers\BlockDomainController;
+use App\Http\Controllers\BroadcastController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
@@ -33,6 +34,7 @@ Route::group([], function() {
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::post('/activate-account', [AuthController::class, 'activateAccount']);
     Route::post('/activate-account-validate', [AuthController::class, 'activateAccountValidate']);
+    Route::get('/logout', [AuthController::class, 'logout']);
 });
 
 Route::group([
@@ -57,11 +59,7 @@ Route::group([
 Route::group([
     'middleware' => ['check_token', 'only_admin'],
 ], function() {
-    Route::group([
-        'prefix' => 'block-domains',
-    ], function() {
-        Route::get('/', [BlockDomainController::class, 'list']);
-    });
+    Route::get('block-domains/', [BlockDomainController::class, 'list']);
     Route::group([
         'prefix' => 'block-domain',
     ], function() {
@@ -73,11 +71,7 @@ Route::group([
 Route::group([
     'middleware' => ['check_token', 'only_admin'],
 ], function() {
-    Route::group([
-        'prefix' => 'users',
-    ], function() {
-        Route::get('/', [UserController::class, 'list']);
-    });
+    Route::get('/users', [UserController::class, 'list']);
     Route::group([
         'prefix' => 'user',
     ], function() {
@@ -88,6 +82,23 @@ Route::group([
         Route::get('/disable/{id}', [UserController::class, 'disable']);
         Route::get('/reset-password/{id}', [UserController::class, 'resetPassword']);
         Route::delete('/{id}', [UserController::class, 'delete']);
+    });
+});
+
+Route::group([
+    'middleware' => ['check_token', 'only_admin'],
+], function() {
+    Route::get('/broadcasts', [BroadcastController::class, 'list']);
+    Route::group([
+        'prefix' => 'broadcast',
+    ], function() {
+        Route::post('/', [BroadcastController::class, 'create']);
+        Route::get('/{id}', [BroadcastController::class, 'detail']);
+        Route::put('/{id}', [BroadcastController::class, 'update']);
+        Route::delete('/{id}', [BroadcastController::class, 'remove']);
+        Route::post('/import', [BroadcastController::class, 'import']);
+        Route::get('/whatsapp/{id}', [BroadcastController::class, 'sendToWhatsapp']);
+        Route::get('/email/{id}', [BroadcastController::class, 'sendToEmail']);
     });
 });
 
