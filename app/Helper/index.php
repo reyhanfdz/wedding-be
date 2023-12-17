@@ -145,3 +145,64 @@ if (!function_exists('getProfileId')) {
         }
     }
 }
+
+if (!function_exists('paginateData')) {
+    function paginateData($data) {
+        $response = [
+            'list' => [],
+            'paginate' => [
+                'current_page' => 1,
+                'prev_page' => null,
+                'next_page' => null,
+                'per_page' => 10,
+                'total_page' => null,
+                'total_list' => null,
+                'total_data' => null,
+                'pages' => []
+            ]
+        ];
+
+        if ($data) {
+            $data = $data->toArray();
+            $prev_page = $data['prev_page_url'] ? (int) explode('=', $data['prev_page_url'])[1] : null;
+            $next_page = $data['next_page_url'] ? (int) explode('=', $data['next_page_url'])[1] : null;
+            $response = [
+                'list' => $data['data'],
+                'paginate' => [
+                    'current_page' => $data['current_page'],
+                    'prev_page' => $prev_page,
+                    'next_page' => $next_page,
+                    'per_page' => (int) $data['per_page'],
+                    'total_page' => (int) $data['last_page'],
+                    'total_list' => (int) $data['to'],
+                    'total_data' => (int) $data['total'],
+                ]
+            ];
+            foreach($data['links'] as $item) {
+                if ($item['label'] != '&laquo; Previous' && $item['label'] != 'Next &raquo;') {
+                    $page = explode('=',$item['url'])[1];
+                    $active = $item['active'];
+                    $response['paginate']['pages'][] = [
+                        'active' => $active,
+                        'value' => (int) $page,
+                    ];
+                }
+            }
+        }
+
+        return $response;
+    }
+}
+
+if (!function_exists('indonesianDate')) {
+    function indonesianDate($date) {
+        try {
+            if ($date) {
+                return Carbon::parse($date)->locale('id')->format('l, d F Y');
+            }
+            return null;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+}

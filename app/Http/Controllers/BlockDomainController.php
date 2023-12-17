@@ -12,7 +12,7 @@ class BlockDomainController extends Controller
     function list(Request $request) {
         try {
             $current_page = isset($request->page) ? $request->page : 1;
-            $limit = isset($request->limit) ? $request->limit : 1;
+            $limit = isset($request->limit) ? $request->limit : 10;
             $keyword = isset($request->keyword) ? $request->keyword : null;
             $data = BlockDomain::when($keyword, function($query, $keyword) {
                 $query->where('name', 'like', '%'.$keyword.'%');

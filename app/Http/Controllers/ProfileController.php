@@ -32,10 +32,11 @@ class ProfileController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
-                'name' => ['required', 'regex:/^[a-zA-Z ]+$/'],
+                'name' => ['required', 'max:50', 'regex:/^[a-zA-Z ]+$/'],
                 'phone' => ['required', 'regex:/^[+]{1}(?:[0-9]\s?){6,15}[0-9]{1}$/'],
             ], [
                 'name.required' => 'Name is required',
+                'name.required' => 'Name max 50 character',
                 'name.regex' => 'Name format is invalid, only alphabet and space',
                 'phone.required' => 'Phone is required',
                 'phone.regex' => 'Phone format is invalid, make sure to use country code like +62, min 6 char and max 15 char',
@@ -97,10 +98,11 @@ class ProfileController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'current_password' => ['required'],
-                'new_password' => ['required', 'regex:/^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]+$/'],
+                'new_password' => ['required', 'min: 6', 'regex:/^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]+$/'],
             ], [
                 'current_password.required' => 'Current password is required',
                 'new_password.required' => 'New password is required',
+                'new_password.min' => 'New Password min 6 characters',
                 'new_password.regex' => 'New Password format is invalid (must be containt alphabet, numeric and special character)',
             ]);
 
@@ -206,9 +208,10 @@ class ProfileController extends Controller
         DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
-                'username' => ['required', 'regex:/^[a-z0-9]+$/'],
+                'username' => ['required', ['unique:users'], 'regex:/^[a-z0-9]+$/'],
             ], [
                 'username.required' => 'Username is required',
+                'username.required' => 'Username has been taken',
                 'username.regex' => 'Username format is invalid (only lowercase alphabet and numeric)',
             ]);
 
