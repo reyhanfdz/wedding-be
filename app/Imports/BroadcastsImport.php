@@ -134,17 +134,33 @@ class BroadcastsImport implements ToCollection
             }
         }
 
-        if($name == "Whatsapp" || $name == "Email") {
-            $checkUnique = false;
-            if($name == "Whatsapp") $checkUnique = Broadcast::where('whatsapp', $value)->first();
-            if($name == "Email") $checkUnique = Broadcast::where('email', $value)->first();
-            if ($checkUnique) {
-                $success = false;
-                $message = "Row ".$key.', '.$name." has been taken, try another ".$name;
-                $this->message[] = [
-                    'field' => $name,
-                    'message' => $message,
-                ];
+        if($name == "Whatsapp") {
+            if ($value) {
+                $checkUnique = false;
+                $checkUnique = Broadcast::where('whatsapp', $value)->first();
+                if ($checkUnique) {
+                    $success = false;
+                    $message = "Row ".$key.', '.$name." has been taken, try another ".$name;
+                    $this->message[] = [
+                        'field' => $name,
+                        'message' => $message,
+                    ];
+                }
+            }
+        }
+
+        if($name == "Email") {
+            if ($value) {
+                $checkUnique = false;
+                $checkUnique = Broadcast::where('email', $value)->first();
+                if ($checkUnique) {
+                    $success = false;
+                    $message = "Row ".$key.', '.$name." has been taken, try another ".$name;
+                    $this->message[] = [
+                        'field' => $name,
+                        'message' => $message,
+                    ];
+                }
             }
         }
 
