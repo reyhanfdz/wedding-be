@@ -82,6 +82,7 @@ class Setting extends Model
         'accompanist_tiktok_4',
         'accompanist_facebook_4',
         'accompanist_instagram_4',
+        'accompanist_picture_4',
         'accompanist_fullname_5',
         'accompanist_type_5',
         'accompanist_status_5',

@@ -86,6 +86,7 @@ class SettingController extends Controller
             $data->accompanist_tiktok_4 = $request->accompanist_tiktok_4 ?? $data->accompanist_tiktok_4 ?? "";
             $data->accompanist_facebook_4 = $request->accompanist_facebook_4 ?? $data->accompanist_facebook_4 ?? "";
             $data->accompanist_instagram_4 = $request->accompanist_instagram_4 ?? $data->accompanist_instagram_4 ?? "";
+            $data->accompanist_picture_4 = $request->accompanist_picture_4 ?? $data->accompanist_picture_4 ?? "";
             $data->accompanist_fullname_5 = $request->accompanist_fullname_5 ?? $data->accompanist_fullname_5 ?? "";
             $data->accompanist_type_5 = $request->accompanist_type_5 ?? $data->accompanist_type_5 ?? "";
             $data->accompanist_status_5 = $request->accompanist_status_5 ?? $data->accompanist_status_5 ?? "";
@@ -191,6 +192,7 @@ class SettingController extends Controller
             if (!$data->accompanist_tiktok_4) $data->accompanist_tiktok_4 = "";
             if (!$data->accompanist_facebook_4) $data->accompanist_facebook_4 = "";
             if (!$data->accompanist_instagram_4) $data->accompanist_instagram_4 = "";
+            if (!$data->accompanist_picture_4) $data->accompanist_picture_4 = "";
             if (!$data->accompanist_fullname_5) $data->accompanist_fullname_5 = "";
             if (!$data->accompanist_type_5) $data->accompanist_type_5 = "";
             if (!$data->accompanist_status_5) $data->accompanist_status_5 = "";
@@ -211,7 +213,6 @@ class SettingController extends Controller
             if (!$data->gallery_4) $data->gallery_4 = "";
             if (!$data->gallery_5) $data->gallery_5 = "";
             if (!$data->reservation_bg) $data->reservation_bg = "";
-
             unset($data['id']);
             unset($data['created_at']);
             unset($data['updated_at']);
