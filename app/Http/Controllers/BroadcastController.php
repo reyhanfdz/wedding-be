@@ -330,7 +330,7 @@ class BroadcastController extends Controller
 
             $name = str_replace(' ', '__', $data->name);
             $link_fe = env("APP_FE_URL").'?name='.$name;
-            $invitaion_message = 'Assalamualaikum Warahmatullahi Wabarakatuh%0a%0aTanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i, untuk menghadiri acara pernikahan kami, pada:%0a- Tanggal: '.indonesianDate($setting->event_ceremonial_date).'%0a- ⁠Lokasi: '.$setting->event_ceremonial_address.'%0a%0aSuatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan untuk hadir dan memberikan doa restu.%0a%0aTerima kasih banyak atas perhatiannya.%0a%0aWassalamualaikum Warahmatullahi Wabarakatuh%0a%0a~ _Ade dan Nova_%0a%0aInfo lebih lanjut dan undangan pernikahan:%0a'.$link_fe;
+            $invitaion_message = 'Assalamualaikum Warahmatullahi Wabarakatuh%0a%0aTanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i, untuk menghadiri acara pernikahan kami, pada:%0a- Tanggal: '.indonesianDate($setting->event_ceremonial_date).'%0a- ⁠Lokasi: '.$setting->event_ceremonial_address.'%0a%0aSuatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan untuk hadir dan memberikan doa restu.%0a%0aTerima kasih banyak atas perhatiannya.%0a%0aWassalamualaikum Warahmatullahi Wabarakatuh%0a%0a~ _Reyhan dan Murni_%0a%0aInfo lebih lanjut dan undangan pernikahan:%0a'.$link_fe;
             $res_data = [
                 'invitation_message' => $invitaion_message,
                 'link' => Broadcast::$link_whatsapp.'?phone='.$data->whatsapp.'&text='.$invitaion_message,

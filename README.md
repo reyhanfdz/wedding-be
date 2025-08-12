@@ -1,4 +1,4 @@
-## SAVE-ME-API
+## REYHAN-WEDDING-API
 
 This is the API for weeding management content
 
@@ -8,7 +8,7 @@ This is the API for weeding management content
     - **[see doc here](https://getcomposer.org/doc)**
 2. Setup Laravel (v8x)
     - **[see doc here](https://laravel.com/docs/8.x)**
-3. Setup PHP (v7.3 or v8.0)
+3. Setup PHP (v7.3 or v8.0), v8.0 recommended
     - **[see doc here](https://www.php.net/docs.php)**
 4. Setup Database (for newbie recomended setup MySql for Database)
     - **[see doc MySql here](https://dev.mysql.com/doc)**
